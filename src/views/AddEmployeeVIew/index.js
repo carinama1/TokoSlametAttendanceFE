@@ -2,6 +2,8 @@ import { makeStyles, Button } from "@material-ui/core";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import Input from "../../component/Input";
+import { AddEmployeeAPI } from "../../api/employees";
+import colors from "../../theme/colors";
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {},
@@ -46,20 +48,31 @@ const AddEmployee = () => {
     payday: "",
   });
   const [errors, setErrors] = useState({ name: "", phone: "", payday: "" });
+  const [withMessage, setWithMessage] = useState("");
 
   const handleSubmit = () => {
     const tempErrors = {};
     tempErrors.name = validate("name", 3, 32);
     tempErrors.phone = validate("phone", 10, 14);
     tempErrors.payday = validate("payday", 2, 2);
-
     const { name, phone, payday } = tempErrors;
 
     if (name || phone || payday) {
       setErrors(tempErrors);
       return;
     } else {
-      console.log("continue");
+      AddEmployeeAPI(formValue)
+        .then(({ data }) => {
+          setFormValue({
+            name: "",
+            phone: "",
+            payday: "",
+          });
+          setWithMessage({ succes: true, message: data });
+        })
+        .catch((err) => {
+          setWithMessage({ succes: false, message: err.response.data });
+        });
     }
   };
 
@@ -82,6 +95,27 @@ const AddEmployee = () => {
   return (
     <div className={classes.wrapper}>
       <div className={classes.header}> TAMBAH PEGAWAI </div>
+      {withMessage && (
+        <div
+          style={
+            withMessage.succes
+              ? {
+                  textAlign: "center",
+                  marginTop: 10,
+                  fontSize: 20,
+                  color: colors.succes,
+                }
+              : {
+                  textAlign: "center",
+                  marginTop: 10,
+                  fontSize: 20,
+                  color: colors.danger,
+                }
+          }
+        >
+          {withMessage.message}
+        </div>
+      )}
       <div style={{ padding: 10 }}>
         {forms.map((form, index) => {
           return (

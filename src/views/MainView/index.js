@@ -1,6 +1,8 @@
 import { makeStyles, Button } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 import EmployeeAttendance from "./component/EmployeeAttendance";
+import { GetAttendanceAPI } from "../../api/attendance";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {},
@@ -21,12 +23,21 @@ const useStyles = makeStyles((theme) => ({
 
 const MainView = () => {
   const classes = useStyles();
+
+  const [employees, setEmployees] = useState([]);
+
+  useEffect(() => {
+    GetAttendanceAPI().then(({ data }) => {
+      setEmployees(data.data);
+    });
+  }, []);
   return (
     <div className={classes.wrapper}>
       <div className={classes.content}>
-        <EmployeeAttendance />
-        <EmployeeAttendance />
-        <EmployeeAttendance />
+        {employees.length > 0 &&
+          employees.map((employee, index) => (
+            <EmployeeAttendance key={index} Attendance={employee} />
+          ))}
         <NavLink to="employee/add">
           <div style={{ margin: "20px auto", width: 240 }}>
             <Button className={classes.btn}>(+) Tambah Pegawai</Button>

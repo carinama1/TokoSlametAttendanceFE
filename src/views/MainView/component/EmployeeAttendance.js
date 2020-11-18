@@ -2,6 +2,8 @@ import { Button, makeStyles } from "@material-ui/core";
 import { useState } from "react";
 import Drawer from "../../../component/Drawer";
 import colors from "../../../theme/colors";
+import { updateAttendanceAPI, GetAttendanceAPI } from "../../../api/attendance";
+import { NavLink } from "react-router-dom";
 
 const defaultImage =
   "https://i0.wp.com/itpoin.com/wp-content/uploads/2014/06/guest.png";
@@ -53,15 +55,34 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const EmployeeAttendance = ({ isAbsent = false }) => {
+const EmployeeAttendance = ({ Attendance }) => {
+  const currentAtt = Attendance.attendanceHistory[Attendance.day - 1];
+  const isAbsent = currentAtt !== true && currentAtt !== false ? false : true;
   const classes = useStyles();
-  const [isWorking, setIsWorking] = useState(true);
+  const [currentAttendance, setCurrentAttendance] = useState(Attendance);
+  const [isWorking, setIsWorking] = useState(currentAtt);
   const [absent, setAbsent] = useState(isAbsent);
   const [openDrawer, setOpenDrawer] = useState(false);
+
+  const countAbsent = () => {
+    const x = currentAttendance.attendanceHistory.filter(
+      (data) => data === false
+    ).length;
+    return x;
+  };
 
   const handleAbsent = (isGoToWork) => {
     setAbsent(true);
     setIsWorking(isGoToWork);
+    try {
+      updateAttendanceAPI(Attendance._id, isGoToWork).then(() => {
+        GetAttendanceAPI(Attendance._id).then(({ data }) => {
+          setCurrentAttendance(data.data);
+        });
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -71,8 +92,10 @@ const EmployeeAttendance = ({ isAbsent = false }) => {
           <img src={defaultImage} alt=" main "></img>
         </div>
         <div style={{ marginLeft: 20 }}>
-          <div className="name">Anthony Simultan</div>
-          <div style={{ color: colors.subText }}>Pegawai</div>
+          <NavLink to={`overview/${currentAttendance.employeeID}`}>
+            <div className="name">{currentAttendance.name}</div>
+          </NavLink>
+          <div style={{ color: colors.subText }}>{currentAttendance.role}</div>
         </div>
 
         <div
@@ -118,7 +141,8 @@ const EmployeeAttendance = ({ isAbsent = false }) => {
             >
               <div>
                 <h3>
-                  Apakah anda yain ingin merubah absensi {"Anthony Simultan"}?
+                  Apakah anda yain ingin merubah absensi{" "}
+                  {currentAttendance.name}?
                 </h3>
                 <div
                   style={{
@@ -166,13 +190,13 @@ const EmployeeAttendance = ({ isAbsent = false }) => {
       </div>
       <div className={classes.etc}>
         <div style={{ fontWeight: "bold" }}>
-          <span>Pay day :</span> <div>20</div>
+          <span>Pay day :</span> <div>{currentAttendance.payday}</div>
         </div>
         <div style={{ fontWeight: "bold" }}>
-          <span>Absen :</span> <div>2 Hari</div>
+          <span>Absen :</span> <div>{countAbsent()} Hari</div>
         </div>
         <div style={{ fontWeight: "bold" }}>
-          <span>Phone :</span> <div>081233471239</div>
+          <span>Phone :</span> <div>{currentAttendance.phone}</div>
         </div>
       </div>
     </div>

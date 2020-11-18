@@ -53,6 +53,7 @@ const Input = ({
               }
             : {}
         }
+        value={value}
         className={classes.input}
         onChange={(e) => handleChanges(e)}
         type={type}

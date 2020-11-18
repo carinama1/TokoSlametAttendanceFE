@@ -69,9 +69,6 @@ const HeaderBar = () => {
               <NavLink to="/" onClick={() => setDrawerOpen(false)}>
                 <div className={classes.menu}>Menu</div>
               </NavLink>
-              <div className={classes.menu}>Menu</div>
-              <div className={classes.menu}>Menu</div>
-              <div className={classes.menu}>Menu</div>
             </div>
           </Drawer>
         )}
