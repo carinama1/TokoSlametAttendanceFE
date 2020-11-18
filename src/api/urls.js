@@ -1,4 +1,4 @@
-const FIXED_URL = process.env.URL || "http://localhost:4009/api/v1";
+const FIXED_URL = process.env.REACT_APP_URL || "http://localhost:4009/api/v1";
 
 export const addemployee = FIXED_URL + "/employees/add";
 export const getAttendance = FIXED_URL + "/attendance/get";
